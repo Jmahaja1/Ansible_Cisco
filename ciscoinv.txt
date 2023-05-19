@@ -1,0 +1,8 @@
+[cisco_devices]
+device_name ansible_host=xx.xx.xx.xx
+
+[control_host:vars]
+ansible_connection=local
+ansible_python_interpreter=/home/xxxx/xxx/xx/python3
+ansible_become=yes
+ansible_become_method=enable
