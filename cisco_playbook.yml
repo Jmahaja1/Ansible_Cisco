@@ -1,0 +1,56 @@
+
+- hosts: cisco_devices
+  gather_facts: no
+  connection: network_cli
+  roles:
+    - clay584.parse_genie
+  vars:
+    ansible_user: wifibot
+    ansible_ssh_private_key_file: ../xxxxxx
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    ansible_network_os: ios
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_become_password: xxxxx
+    ansible_command_timeout: 120
+    Make: Cisco
+  tasks:
+    - name: Retrieve show version output
+      ios_command:
+        commands:
+          - show version
+      register: show_version_output
+    - name: Print Show Version Output
+      debug:
+        var: show_version_output
+    - name: Enter Enable mode
+      ios_command:
+        commands:
+          - enable
+      register: enable_output
+    - name: Show current running configuration
+      ios_command:
+        commands: show running-config
+      register: running_config
+    - name: Save current configuration to startup
+      ios_command:
+        commands: write memory
+
+    - name: Print show version output
+      debug:
+        var: show_version_output.stdout_lines
+
+    - name: Debug Genie Filter
+      set_fact:
+         parsed_show_version: "{{ show_version_output.stdout[0] | parse_genie(command='show version', os='ios') }}"
+      delegate_to: localhost
+    - name: Print Genie Output
+      debug:
+        var: parsed_show_version
+    - name: Create file
+      template:
+       src: ciscotest.j2
+       dest: "/var/tmp/{{inventory_hostname}}-details"
+       mode: 0744
+      connection: local
+      ignore_errors: yes
