@@ -1,0 +1,5 @@
+Device Name:  {{ inventory_hostname }}
+Make: {{ Make }}
+Model: {{ parsed_show_version.version.image_id }} 
+Serial Number: {{ parsed_show_version.version.chassis_sn }}
+Software Version: {{ parsed_show_version.version.version }}
